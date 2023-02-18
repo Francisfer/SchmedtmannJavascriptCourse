@@ -362,3 +362,61 @@ console.log(ages); // the same values, placed in an array.
 
 // calcAge(years);
 // console.log(calcAge(years));
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+LECTURE: BASIC ARRAY OPERATIONS(METHODS).
+
+    Javascript has some built in functions that we can apply directly on arrays.
+
+    This are called methods. we can think of methods as array operations basically.
+
+
+*/
+
+// ADD ELEMENTS.
+const friendsThisLecture = ["Michael", "Steven", "Peter"];
+friendsThisLecture.push("Jay"); // the push method adds elements to the END of the array.
+console.log(friendsThisLecture);
+
+// push method is, essentially, a function that we call directly on the friends array with the (.). Since push is a function, it returns a value, which is the length of the new array. If we want to capture the value, we create a new variable for that, pay attention because we cant do both ways, otherwise it adds jay twice:
+
+// const newLength = friendsThisLecture.push("Jay");
+// console.log(newLength);
+
+// most of the time we don't do this, we push an element and it's done, because we don't immediately need the length of the new array.
+
+friendsThisLecture.unshift("John"); // the unshift method adds elements to the BEGINNING of the array. just like push,it also returns the length of the array.
+console.log(friendsThisLecture);
+
+// REMOVE ELEMENTS.
+
+friendsThisLecture.pop(); // It's the opposite of push. It removes the last element of the array. we don't need to pass any argument to remove the last element.
+console.log(friendsThisLecture);
+
+// friendsThisLecture.pop(); // if we run it twice, it removes again the last element.
+// console.log(friendsThisLecture);
+
+// the pop method doesn't return the length of the new array, instead returns the removed element:
+
+const popped = friendsThisLecture.pop();
+console.log(popped);
+console.log(friendsThisLecture);
+
+friendsThisLecture.shift(); // Removes the first element, returns the removed.
+console.log(friendsThisLecture);
+
+// INDEX POSITION.
+console.log(friendsThisLecture.indexOf("Steven"));
+console.log(friendsThisLecture.indexOf("Bob")); // if the element doesn't exist we get -1 (remember first lessons)
+
+// there is a similar method to the indexOf, its an ES6 method and its called includes. instead of returning the index of the element, will simply return true if the element is in the array and false if its not:
+
+console.log(friendsThisLecture.includes("Steven"));
+console.log(friendsThisLecture.includes("Bob"));
+// it tests with strict equality, if we had the number 23 in the array and tested for string "23" it would return false. Does not do type coercion. This method is very useful to test conditionals:
+
+if (friendsThisLecture.includes("Steven")) {
+  console.log("You have a friend called Steven");
+}
