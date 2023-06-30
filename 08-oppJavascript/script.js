@@ -22,7 +22,9 @@
 
 
 */
-////////////////////////////////////////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
 /*
 
     Lecture: OOP in javascript. check pdf
@@ -59,7 +61,7 @@
 
 */
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -128,7 +130,7 @@ console.log(francisco instanceof Person); // true
 
 // Keep in mind these four steps and the magic of the new operator.
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -178,13 +180,13 @@ console.log(francisco.species, joe); // As you can see in joe, the species prope
 console.log(francisco.hasOwnProperty("firstName")); // true
 console.log(francisco.hasOwnProperty("species")); // false
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
     Lecture: Prototypal inheritance and the prototype chain. Check pdf.
 */
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -202,7 +204,7 @@ console.log(arr.__proto__.__proto__); // Here we have object.prototype again, so
 
 // You can conclude that the prototypal inheritance is really a mechanism for reusing code. All of the built in methods have to exist only once, somewhere in the javascript engine.
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -283,7 +285,7 @@ mercedes.accelerate();
 mercedes.brake();
 */
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -346,7 +348,7 @@ jessica.greet();
 
 */
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -394,7 +396,7 @@ console.log(account); // 50 inside of the movements array.
 
 // Classes also have getters and setters, they work in the exact same way. They are very useful for data validation. Check the final code (from the lessons) to see how this is done because we need to create a new property on the setter (if we don't, the constructor function and the setter will conflict). Although we are creating a new property, we can compute that one, or create a getter to have the "previous one".
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -418,7 +420,7 @@ console.log(account); // 50 inside of the movements array.
 
 */
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -472,7 +474,7 @@ sarah.init("Sarah", 1979);
 sarah.calcAge();
 console.log(sarah);
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -528,7 +530,7 @@ const ford = new CarClass("Ford", 120);
 // ford.speedUs = 75;
 // console.log(ford);
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -678,7 +680,7 @@ Student.prototype.constructor = Student;
 
 console.dir(Student.prototype.constructor);
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -757,7 +759,7 @@ const tesla = new eVehicle("Tesla", 120, 23);
 
 // This is an example of how a child class can overwrite a method that inherited from the parent class.
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -804,7 +806,7 @@ jane.introduce();
 jane.calcAge();
 console.log(jane);
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -850,7 +852,7 @@ jay.calcAge();
 
 // Here we are not faking classes, all we are doing is simply linking objects together.
 
-////////////////////////////////////////////////////////////////////////////////////////
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
 /*
 
@@ -961,3 +963,291 @@ acc1.requestLoan(1000);
 // approveLoan() is kind of an internal method that only the requestLoan method should be able to use.
 
 // This enhances the importance of data encapsulation and data privacy, which we will implement in the next lectures.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Encapsulation: protected properties and methods.
+
+    In the last lecture we implemented a new class, which showed us the need for encapsulation and data privacy.
+
+    First, encapsulation basically means to keep some properties and methods private inside the class, so they are not accessible from outside of that same class.
+
+    Then, the rest of the methods are exposed as a public interface, which we call API.
+
+    There are two big reasons why we need encapsulation and data privacy:
+
+      First, it is to prevent code from outside of a class to accidentally manipulate our data inside the class. acc1.movements.push(250);
+
+      Second, when we expose only a small interface (a small API consisting only of a few public methods), then we can change all the other internal methods with more confidence.
+
+    However, javascript classes do not yet support real data privacy and encapsulation.
+
+    There is a proposal to add truly private class fields and methods to the language but it's not ready yet.
+
+    In this lecture we will talk about faking encapsulation by simply using a convention.
+
+    A convention is nothing more that a way of communicating to other developers that the properties of methods should not be manipulated directly.
+
+    For this, developers agreed to use the _ so that they could easily see that those properties of methods are private. this._movements = [];
+
+    If we still wanted to give access to the movements array from the outside, we would have to implement a public method for that.
+
+    It is common to have a method called get or set instead of using a real setter or getter:
+
+    getMovements() {
+      return this._movements; Imagine that the underscore was there (convention).
+    }
+
+    Now, this would be the correct way to get the movements outside, because they can access them but not overwrite (or set): acc2.getMovements()
+
+    Of course, this does not make impossible to access the data from outside.
+
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Encapsulation: private class fields and methods.
+
+    Let's now implement truly private classes and methods.
+
+    Private class fields and methods are actually part of a bigger proposal for improving and changing javascript classes, which is called class fields.
+
+    In this proposal, there are actually four different kinds of fields and methods (eight actually but focusing on the main).
+
+    Public fields, private fields, public methods and private methods. Essentially, there is a public and a private version of both fields and methods.
+
+*/
+
+// Let's start with the public fields. You can think of a field as a property that will be on all instances (can also be called public instance field).
+
+// In our example, the two fields could be the movements and the locale because these are two properties that are going to be on all objects (instances) created with this class.
+
+class Account2 {
+  // PUBLIC FIELDS - notice the semi colon. All works the same as we comment out the properties on the constructor. They are present on all the instances, but they are NOT on the prototype. IMPORTANT
+  // These public fields are also referenceable by the this keyword and via this keyword.
+
+  locale = navigator.language;
+
+  // PRIVATE FIELDS (NOT on the prototype. IMPORTANT) - Here is where we make properties not accessible from the outside.
+  // The hash (#) is the syntax that makes the field private. Like this we get an error.
+  // The reason for that is that the property is now really called #movements, so we need to change that everywhere.
+  // Now, if we try to read the movements from acc2 outside we get an error - see below in 1.
+  // Now, to get the movements, we only have the getMovements method (that was the point of its creation in the first place).
+
+  #movements = [];
+
+  // The next property to make private is the pin, however, here things are a bit different because we are setting the pin based on the input value on the constructor.
+  // We cannot define a field in the constructor, fields must be outside of any method.
+  // What we must do is to create the field outside and don't set it to anything. It's essentially like creating an empty variable.
+  // Then we redefine the value inside of the constructor.
+
+  #pin;
+
+  constructor(owner, currency, pin) {
+    this.owner = owner;
+
+    this.currency = currency;
+
+    this.#pin = pin; // REDEFINING the value
+
+    // this.movements = [];
+
+    // this.locale = navigator.language;
+  }
+
+  // Public interface - Public methods (nothing to talk about) - see the private below.
+
+  getMovements() {
+    return this.#movements;
+  }
+
+  deposit(value) {
+    this.#movements.push(value);
+    return this;
+  }
+
+  withdrawal(value) {
+    this.deposit(-value);
+    return this;
+  }
+
+  // approveLoan(value) {
+  //   return true;
+  // }
+
+  requestLoan(value) {
+    if (this.#approveLoan(value)) {
+      this.deposit(value);
+      console.log(`Loan approved`);
+      return this;
+    }
+  }
+
+  // Private methods - The syntax is the same with the #.
+  // In the case of approveLoan() notice that we also redefine the method in the requestLoan().
+  // By the time this lesson was recorded, google chrome simply made this method like a private field (was not in the prototype but in the instance instead).
+  // BUT NOW, private methods are no longer placed in the instance, they are not on the prototype also, instead the console shows us a new top of the prototypal chain.
+  // This can mean that private methods have their own place in the prototypal chain - READ MORE ABOUT THIS.
+
+  #approveLoan(value) {
+    return true;
+  }
+}
+
+const acc2 = new Account2("Francisco", "Euro", 1111);
+acc2.deposit(1000);
+acc2.requestLoan(2000);
+console.log(acc2);
+
+// console.log(acc2.#movements); // 1. Uncaught SyntaxError
+// console.log(acc2.getMovements());
+
+const acc3 = new Account2("Joe", "Euro", 2222);
+acc3.requestLoan(4000);
+console.log(acc3);
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Encapsulation: Chaining methods.
+
+    We can implement the same ability of chaining methods in the methods of our class.
+
+*/
+
+// This is extremely easy to do, all we need is to return the object itself at the end of a method that we want to be chainable.
+
+// Let's say that we want to do this:
+
+// acc2
+//   .deposit(399)
+//   .deposit(500)
+//   .withdrawal(34)
+//   .requestLoan(1000)
+//   .withdrawal(4000);
+
+// Right now this produces an error, that's because the first deposit works, but it doesn't return nothing (we are not returning nothing explicitly).
+
+// If we don't return nothing, then we are calling the next deposit on undefined.
+
+// What we need to do is to call deposit on the account, in other words, we want the result of the first deposit to be the account object.
+
+// To make it work, all we need to do is to return the account object in the methods, and the account is === to the this keyword (check the methods in the class).
+
+// Returning the object (returning this), basically makes the method chainable.
+
+acc2
+  .deposit(399)
+  .deposit(500)
+  .withdrawal(34)
+  .requestLoan(1000)
+  .withdrawal(4000);
+console.log(acc2); // Voila
+
+// This makes most sense in methods that actually set some property (like the ones that we have).
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: ES6 classes summary - Check the pdf
+
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Challenge 4
+
+    1. Re-create challenge #3, but this time using ES6 classes: create an 'EVCl' child class of the 'CarCl' class;
+
+    2. Make the 'charge' property private;
+
+    3. Implement the ability to chain the 'accelerate' and 'chargeBattery' methods of this class, and also update the 'brake' method in the 'CarCl' class. They experiment with chaining!
+
+DATA CAR 1: 'opel' going at 120 km/h, with a charge of 23%
+
+GOOD LUCK 😀
+
+
+class CarClass {
+  constructor(make, speed) {
+    this.make = make;
+    this.speed = speed;
+  }
+
+  accelerate() {
+    this.speed += 10;
+    console.log(`${this.make} is going at ${this.speed} km/h`);
+  }
+
+  brake() {
+    this.speed -= 5;
+    console.log(`${this.make} is going at ${this.speed} km/h`);
+  }
+
+  get speedUs() {
+    return this.speed / 1.6;
+  }
+
+  set speedUs(speed) {
+    this.speed = speed * 1.6;
+  }
+  // Read more about the setter.
+}
+
+*/
+
+class EVcl extends CarClass {
+  #charge;
+
+  constructor(make, speed, charge) {
+    super(make, speed);
+    this.#charge = charge;
+  }
+
+  chargeBattery(chargeTo) {
+    this.#charge = chargeTo;
+    return this;
+  }
+
+  accelerate() {
+    this.speed += 20;
+    this.#charge--;
+    console.log(
+      `${this.make} is going at ${this.speed} km/h, with a charge of ${
+        this.#charge
+      }%`
+    );
+    return this;
+  }
+
+  brake() {
+    this.speed -= 5;
+    console.log(
+      `${this.make} is going at ${this.speed} km/h, with a charge of ${
+        this.#charge
+      }%`
+    );
+    return this;
+  }
+}
+
+const opel = new EVcl("Opel", 120, 23);
+console.log(opel);
+
+opel
+  .accelerate()
+  .accelerate()
+  .accelerate()
+  .brake()
+  .chargeBattery(50)
+  .accelerate();
+
+console.log(opel.speedUs); // Using the getters and getters of the parent class.
