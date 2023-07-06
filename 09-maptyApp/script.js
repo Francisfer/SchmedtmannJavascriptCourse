@@ -385,6 +385,7 @@ inputType.addEventListener("change", function () {
 class App {
   #map;
   #mapEventLeaflet;
+  #workouts = [];
 
   constructor() {
     this._getPosition();
@@ -432,15 +433,67 @@ class App {
 
   _newWorkout(e) {
     e.preventDefault();
-    console.log(this);
-    // clear input fields - A.
-    inputDistance.value =
-      inputDuration.value =
-      inputCadence.value =
-      inputElevation.value =
-        "";
 
-    const { lat, lng } = this.#mapEventLeaflet.latlng; // Here is where we need it.
+    // CREATING A NEW WORKOUT LECTURE:
+
+    // HELPER functions
+    const validInputs = (...inputs) =>
+      inputs.every((inp) => Number.isFinite(inp));
+    const allPositive = (...inputs) => inputs.every((inp) => inp > 0);
+    // If one of them is false we trigger the alert, that's why we use the !
+
+    // Get data from form
+
+    const type = inputType.value; // Check html - value running for running and vice versa.
+
+    const distance = +inputDistance.value; // Coming as string, hence the plus to convert.
+
+    const duration = +inputDuration.value;
+
+    // The cadence and the elevation gain, we don't want to get them here at the beginning, we only want the first if the workout is running and the second if it is cycling.
+    let workout;
+    const { lat, lng } = this.#mapEventLeaflet.latlng; // Let's bring it here
+
+    // Check if data is valid
+
+    // If workout running, create running object
+
+    if (type === "running") {
+      const cadence = +inputCadence.value;
+
+      // Check if data is valid - or because it should return when one is not a nr, not all.
+      if (
+        // !Number.isFinite(distance) ||
+        // !Number.isFinite(duration) ||
+        // !Number.isFinite(cadence)
+        !validInputs(distance, duration, cadence) ||
+        !allPositive(distance, duration, cadence) // Check helper functions.
+      )
+        return alert("Inputs have to be positive number"); // Guard clause - check for the opposite of what we want to return immediately if that is true.
+
+      // Add new object to workout array
+
+      workout = new Running([lat, lng], distance, duration, cadence);
+    }
+    // If workout cycling, create cycling object
+
+    if (type === "cycling") {
+      const elevation = +inputElevation.value;
+
+      if (
+        !validInputs(distance, duration, elevation) ||
+        !allPositive(distance, duration) // Check helper functions. Elevation can be negative.
+      )
+        return alert("Inputs have to be positive number");
+
+      workout = new Cycling([lat, lng], distance, duration, elevation);
+    }
+    // Add new object to workout array
+
+    this.#workouts.push(workout); // # created in the private class fields
+    console.log(workout);
+    // Render workout on map as marker
+    // const { lat, lng } = this.#mapEventLeaflet.latlng;
 
     L.marker([lat, lng])
       .addTo(this.#map)
@@ -455,6 +508,15 @@ class App {
       )
       .setPopupContent("Workout")
       .openPopup(); // Read leaflet documentation.
+
+    // Render workout on map as marker
+
+    // Hide form and clear input fields - A.
+    inputDistance.value =
+      inputDuration.value =
+      inputCadence.value =
+      inputElevation.value =
+        "";
   }
 }
 
@@ -579,6 +641,9 @@ class Cycling extends Workout {
 
     If you take a look at the flowchart, the user submits a new workout is the one that we are interested in.
 
-    For now we want to render workout on map and render workout in list.
+    Everything is going to happen whenever we hit enter, so remember that we added an event listener to the constructor of the App class (where we have the callback function of new workout). 
 
+    This to sat that all the code will be written in the _newWorkout method. 
+
+    Check the code above.
 */
