@@ -99,6 +99,7 @@ body {
 }
 
 .btn-country {
+  /* display: none; */
   border: none;
   font-size: 2rem;
   padding: 2rem 5rem;

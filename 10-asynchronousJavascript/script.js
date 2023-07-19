@@ -95,10 +95,10 @@ const getCountryData = function (country) {
   // In order to get the result, we need to register a callback on the request object for the load (where we will wait for the load) event:
 
   request.addEventListener("load", function () {
-    // console.log(this.responseText); // or request. the response is in the property response text. JSON
+    console.log(this.responseText); // or request. the response is in the property response text. JSON
 
     const [data] = JSON.parse(this.responseText);
-    console.log(data); // An array containing one object. So we need to destructure it with the [] to immediately get the object.
+    //console.log(data); // An array containing one object. So we need to destructure it with the [] to immediately get the object.
 
     // Now we can build the card component, we need to copy the html from the comment.
 
@@ -176,7 +176,7 @@ const renderCountry = function (data, className = "") {
       </article>`;
 
   countriesContainer.insertAdjacentHTML("beforeend", html);
-  //   countriesContainer.style.opacity = 1;
+  countriesContainer.style.opacity = 1;
 };
 
 const getCountryAndNeighbor = function (country) {
@@ -1001,3 +1001,298 @@ const whereAmI2 = function () {
 };
 
 // whereAmI2();
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/* 
+
+Coding Challenge #2
+
+
+Build the image loading functionality that I just showed you on the screen.
+
+Tasks are not super-descriptive this time, so that you can figure out some stuff on your own. Pretend you're working on your own 😉
+
+PART 1
+1. Create a function 'createImage' which receives imgPath as an input. This function returns a promise which creates a new image (use document.createElement('img')) and sets the .src attribute to the provided image path. When the image is done loading, append it to the DOM element with the 'images' class, and resolve the promise. The fulfilled value should be the image element itself. In case there is an error loading the image ('error' event), reject the promise.
+
+If this part is too tricky for you, just watch the first part of the solution.
+
+PART 2
+2. Consume the promise using .then and also add an error handler;
+3. After the image has loaded, pause execution for 2 seconds using the wait function we created earlier;
+4. After the 2 seconds have passed, hide the current image (set display to 'none'), and load a second image (HINT: Use the image element returned by the createImage promise to hide the current image. You will need a global variable for that 😉);
+5. After the second image has loaded, pause execution for 2 seconds again;
+6. After the 2 seconds have passed, hide the current image.
+
+TEST DATA: Images in the img folder. Test the error handler by passing a wrong image path. Set the network speed to 'Fast 3G' in the dev tools Network tab, otherwise images load too fast.
+
+GOOD LUCK 😀
+*/
+// UNCOMMENT BEFORE PUSH.
+// const imgContainer = document.querySelector(".images");
+
+// const createImage = function (imgPath) {
+//   return new Promise((resolve, reject) => {
+//     const newImage = document.createElement("img");
+//     newImage.src = imgPath;
+
+//     newImage.addEventListener("load", (e) => {
+//       // console.log("loaded");
+//       imgContainer.append(newImage);
+//       resolve(newImage);
+//     });
+
+//     newImage.addEventListener("error", (e) => {
+//       reject(new Error("Image not found!!"));
+//     });
+//   });
+// };
+
+// let currentImg;
+
+// createImage("img/img-1.jpg")
+//   .then((retValue) => {
+//     currentImg = retValue;
+//     console.log("image 1 loaded");
+//     return wait(2);
+//   })
+//   .then(() => {
+//     console.log(
+//       "waited 2 seconds and removed the display and created a new image"
+//     );
+//     currentImg.style.display = "none";
+//     return createImage("img/img-2.jpg");
+//   })
+//   .then((retValue) => {
+//     currentImg = retValue;
+//     console.log("Image 2 loaded");
+//     return wait(2);
+//   })
+//   .then(() => {
+//     console.log(
+//       "Waited 2 seconds and removed the display and created a new image"
+//     );
+//     currentImg.style.display = "none";
+//     return createImage("img/img-3.jpg");
+//   })
+//   .catch((error) => {
+//     console.error(error);
+//   });
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Consuming promises with async/await.
+
+    Now that we are comfortable with consuming and building promises, let's turn our attention to consuming promises.
+
+    That's because, since es 2017, there is a even better way to consume promises. 
+
+*/
+
+// Let's see how it works. We start by creating a special kind of function, which is a async function.
+
+// We are going to rebuild the whereAmI function that we've been building.
+
+// By adding async, this is now an asynchronous function, a function that will keep running in the background while performing the code that's inside of it.
+
+// When this function is done, it automatically returns a promise, but more on that in the next lesson.
+
+// For now, whats important is that inside an async function, we can have one or more await statements (where we need a promise - in our case it is returned from the fetch function).
+
+// Await will stop the code execution at that point until the promise is fulfilled.
+
+// But isn't stopping the code blocking the execution? No, stopping execution in an async function is not a problem, because the function is running asynchronously in the background.
+
+// Therefore is not blocking the main thread of execution (call stack).
+
+// The async/await is just syntactic sugar over the then() method in promises. We are still using promises.
+
+// We are simply using a different way of consuming them.
+
+const whereAmIAsy = async function (country) {
+  // As soon as the promise is resolved, the value of the hole await expression is going to be the resolved value of the promise.
+  // So we can store it in a variable.
+
+  // Same as:
+  // fetch(
+  //   `https://restcountries.com/v3.1/name/${country}`
+  //   ).then(response => console.log(response));
+
+  const response = await fetch(
+    `https://restcountries.com/v3.1/name/${country}`
+  );
+  // console.log(response); // In order to recreate the function we need to get the json() out of the response. Remember that calling the json() returns a new promise, that we needed to return and use another then() handler.
+
+  // Now it's much easier:
+
+  const data = await response.json();
+  console.log(data);
+
+  // Now we just need to render it:
+
+  renderCountry(data[0]);
+};
+
+// whereAmIAsy("usa");
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Handling errors with try catch statement.
+
+    In this lecture we are going to learn how catching errors work with async await.
+
+    Notice that we are not handling errors here, so if we refresh fast enough, the api will throttle.
+
+    We cannot use the catch() that we've used before because we can't really attach it anywhere.
+
+    Instead, we need to use something called the try/catch statement. 
+
+    This statement is used in regular javascript as well, it has nothing to do with async await, but we can use it to catch errors in async functions.
+
+    
+*/
+
+// Let's first see how try catch works with an example.
+// We can wrap our code in a try block so that javascript try to execute it.
+
+try {
+  let y = 1;
+  const x = 2;
+  // Now the goal was to reassign y, but by mistake, say that we've reassigned x.
+
+  y = 3;
+} catch (err) {
+  // This catch block will have access to whatever error occurred in the try block.
+
+  alert(err.message); // Like this we can see that the error no longer appears in the console, so the script code no longer dies.
+}
+
+// Code with all the functionalities, let's handle the errors in our async function:
+
+const whereAmIAsync = async function (country) {
+  try {
+    // Geolocation
+    const position = await getPosition();
+    console.log(position);
+    const { latitude: lat, longitude: long } = position.coords;
+
+    // Reverse geocoding
+    const responseGeoCod = await fetch(
+      `https://geocode.xyz/${lat},${long}?geoit=json`
+    );
+
+    if (!responseGeoCod.ok) throw new Error("Problem getting location data!");
+
+    const dataGeoCod = await responseGeoCod.json();
+    console.log(dataGeoCod);
+
+    if (dataGeoCod.country === undefined)
+      throw new Error("Throttling API! Refresh slower."); // Remember that the API changed the way of handling too many requests.
+
+    // Country data
+    const response = await fetch(
+      `https://restcountries.com/v3.1/name/${dataGeoCod.country.toLowerCase()}`
+    );
+
+    if (!response.ok) throw new Error("Problem getting country!");
+
+    const data = await response.json();
+
+    renderCountry(data[0]);
+
+    // From next lesson
+
+    return `You are in ${dataGeoCod.city}, ${dataGeoCod.country}`;
+  } catch (error) {
+    console.log(error.message);
+
+    // Rethrow error / Reject promise returned from async function
+    throw error;
+  }
+};
+
+// whereAmIAsync();
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Returning values from async functions.
+
+    
+*/
+
+// Say that we wanted to return some data from the previous async function. SEE the return in the function code.
+
+// console.log("1: Will get your location.");
+
+// const cityCountry = whereAmIAsync(); // We return the string in the function, now let's say that we want to get that data out.
+// // For now, let's pretend that this is a regular function, so we define a variable and store the returned value.
+
+// console.log(cityCountry); // Promise {<pending>}
+// // The logs are now in order, however, this second log is a promise because, at this point, javascript does not know the string that we want (the function is still running and not blocking the code out here).
+// // Also, an async function always returns a promise.
+// console.log("3: Finished getting your location.");
+
+// // To get the value that we want we can do this:
+
+// console.log("1: Will get your location.");
+
+// whereAmIAsync()
+//   .then((city) => console.log(city)) // The fulfilled value of the whereAmIAsync() promise is the string that we returned.
+//   .catch((error) => console.error(`2: ${error.message} 🧨`))
+//   .finally(() => console.log("3: Finished getting your location."));
+
+// console.log("3: Finished getting your location.");
+
+// Further ahead we will be able to do better than this, but for now let's focus on errors.
+
+// If any error occurs in the try block, the return will never be reached because the code will immediately jump to the catch block.
+
+// Nothing get's returned from the function so we get undefined. However, getting undefined means that the log still worked.
+
+// So, the whereAmIAsync() promise was fulfilled and not rejected. Even though there was an error in the async function, the promise that it returns is still fulfilled.
+
+// If we add a catch block we will not be able to catch the error, to do so we need to rethrow the error.
+
+// To respect the order of logs we can simply add a finally (always gets executed).
+
+// Mixing the then() with async await is really not a good practice. It would be nice to use the await without the async function, but that doesn't work.
+
+// We don't want a completely new function here, so we can use a IIFE. Immediately invoked function expressions.
+
+/* 
+This pattern is one of the last use cases of IIFE.
+
+(async function() {
+
+})()
+
+*/
+//  UNCOMMENT BEFORE PUSH
+// console.log("1: Will get your location.");
+
+// (async function () {
+//   try {
+//     const city = await whereAmIAsync();
+//     console.log(`2: ${city} 🧨`);
+//   } catch (error) {
+//     console.error(`2: ${error.message} 🧨`);
+//   }
+//   // The finally block can be placed outside of the try catch block, so it is executed no matter what.
+//   console.log("3: Finished getting your location.");
+// })();
+
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Running promises in parallel.
+
+    
+*/
