@@ -649,3 +649,73 @@ if (module.hot) {
 // For that, we need another parcel command (another script). npm run build.
 
 // Finally, it is also possible to install packages globally. However it is advisable to install the tools locally, so that they can always stay on the latest version.
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Configuring babel and polyfill.
+
+    Now that we activated bundling its time to configure babel to transpile our modern code back to es5 code.
+
+    The good news is that parcel automatically uses babel to transpile our code, and we can configure babel a lot if we want to (ex. define what browsers should be supported).
+
+    But that's a ton of work, instead parcel makes some very good decisions for us, so we will simply mainly just go with these defaults.
+
+    Go to the site and see the plugins. Babel works with plugins and presets that both can be configured. A plugin is basically a javascript that we want to transpile, so to convert.
+
+    If we just wanted to convert arrow functions back to es5 but leave everything else in es6 (it doesn't make much sense because we want to transpile everything at the same time) we could.
+
+    So instead of using single plugins for each of these features, babel actually uses presets (a bunch of plugins bundled together). By default, parcel is going to use the preset/env in the official preset.
+
+    This preset will automatically select which features should be compiled based on browser support. 
+
+    However, this preset only include final features, so features that are already part of the language.
+
+    At the time of recording this course, classes were not yet part of the language (they were only at stage three).
+
+
+*/
+
+//  So let's see how we could transpile class fields as well.
+
+class Person {
+  greeting = "Hey";
+  constructor(name) {
+    this.name = name;
+    console.log(`${this.greeting}, ${this.name}`);
+  }
+}
+
+const francisco = new Person("Francisco");
+
+Promise.resolve("test").then((x) => console.log("x"));
+
+// import 'core-js/stable';
+// // import 'core-js/stable/array/find';
+// // import 'core-js/stable/promise';
+
+// // Polifilling async functions
+// import 'regenerator-runtime/runtime';
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Writing clean and modern javascript. (pdf)
+
+    We have talked about tooling and modules. 
+*/
+
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+
+/*
+
+    Lecture: Fix some bad code.
+
+    Go to clean.js
+
+    Change the script from script.js to clean.js
+
+    We don't need parcel now, just live server.
+*/
